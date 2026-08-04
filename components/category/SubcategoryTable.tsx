@@ -12,6 +12,7 @@ interface SubcategoryRow {
   id: number;
   code: string;
   name: string;
+  ipAddress?: string;
   description: string;
 }
 
@@ -36,13 +37,14 @@ export default function SubcategoryTable({ categoryId, machineId, rows }: Subcat
 
   const columns = [
     { label: "รหัสประเภทย่อย", align: "text-left" },
-    { label: "ชื่อประเภทย่อย", align: "text-left" },
+    { label: "รุ่นอุปกรณ์", align: "text-left" },
+    { label: "IP Address", align: "text-left" },
     { label: "รายละเอียด", align: "text-left" },
     { label: "การจัดการ", align: "text-center" },
   ];
 
   // Submit edit changes
-  const handleEditSubmit = (data: { code: string; name: string; description: string }) => {
+  const handleEditSubmit = (data: { code: string; name: string; description: string; ipAddress: string }) => {
     if (!editingSubcategory) return;
     setEditError(null);
     setEditSuccess(false);
@@ -117,9 +119,13 @@ export default function SubcategoryTable({ categoryId, machineId, rows }: Subcat
                   <td className="px-6 py-4 text-body-md font-code-sm font-bold text-on-surface">
                     {row.code}
                   </td>
-                  {/* ชื่อประเภทย่อย */}
+                  {/* รุ่นอุปกรณ์ */}
                   <td className="px-6 py-4 text-body-md font-semibold text-primary">
                     {row.name}
+                  </td>
+                  {/* IP Address */}
+                  <td className="px-6 py-4 text-body-md text-on-surface-variant font-code-sm">
+                    {row.ipAddress || "-"}
                   </td>
                   {/* รายละเอียด */}
                   <td className="px-6 py-4 text-body-md text-on-surface-variant max-w-sm truncate" title={row.description || ""}>
@@ -133,14 +139,14 @@ export default function SubcategoryTable({ categoryId, machineId, rows }: Subcat
                         size="sm"
                         icon="edit"
                         onClick={() => setEditingSubcategory(row)}
-                        title="แก้ไขประเภทย่อย"
+                        title="แก้ไขข้อมูล"
                       />
                       <Button
                         variant="error"
                         size="sm"
                         icon="delete"
                         onClick={() => setDeletingId(row.id)}
-                        title="ลบประเภทย่อย"
+                        title="ลบข้อมูล"
                       />
                     </div>
                   </td>
@@ -155,7 +161,7 @@ export default function SubcategoryTable({ categoryId, machineId, rows }: Subcat
       <Modal
         isOpen={editingSubcategory !== null}
         onClose={() => !isPending && setEditingSubcategory(null)}
-        title="แก้ไขประเภทย่อยชนิดไฟล์"
+        title="แก้ไขข้อมูลประเภทย่อยชนิดไฟล์"
       >
         <div className="space-y-4">
           {editSuccess && (
@@ -163,7 +169,7 @@ export default function SubcategoryTable({ categoryId, machineId, rows }: Subcat
               <span className="material-symbols-outlined text-tertiary text-[20px]">
                 check_circle
               </span>
-              <span className="text-body-md font-semibold">แก้ไขประเภทย่อยชนิดไฟล์สำเร็จ!</span>
+              <span className="text-body-md font-semibold">แก้ไขข้อมูลประเภทย่อยสำเร็จ!</span>
             </div>
           )}
 
@@ -181,6 +187,7 @@ export default function SubcategoryTable({ categoryId, machineId, rows }: Subcat
               initialData={{
                 code: editingSubcategory.code,
                 name: editingSubcategory.name,
+                ipAddress: editingSubcategory.ipAddress || "",
                 description: editingSubcategory.description || "",
               }}
               onSubmit={handleEditSubmit}

@@ -36,7 +36,7 @@ export default async function MachineDetailPage({ params }: MachineDetailPagePro
     }
     machine = machineRes.rows[0];
 
-    // 2. ดึงประวัติไฟล์โปรแกรมที่เคยอัปโหลดของเครื่องจักรนี้
+    // 2. ดึงประวัติไฟล์โปรแกรมที่เคยอัปโหลดของเครื่องจักรนี้ (พร้อมข้อมูลประเภทย่อย)
     const filesRes = await pool.query(
       `SELECT 
         f.id,
@@ -47,9 +47,13 @@ export default async function MachineDetailPage({ params }: MachineDetailPagePro
         f.remark,
         f.upload_by,
         f.upload_date,
-        c.name AS category_name
+        c.name AS category_name,
+        s.code AS subcategory_code,
+        s.name AS subcategory_name,
+        s.ip_address AS subcategory_ip
        FROM plc_files f
        JOIN categories c ON f.category_id = c.id
+       LEFT JOIN subcategories s ON f.subcategory_id = s.id
        WHERE f.machine_id = $1
        ORDER BY f.upload_date DESC;`,
       [id]
@@ -60,14 +64,26 @@ export default async function MachineDetailPage({ params }: MachineDetailPagePro
     dbError = err.message;
   }
 
-  // จัดกลุ่มไฟล์ประวัติตามชื่อประเภทไฟล์ (category_name)
+  // จัดกลุ่มไฟล์ประวัติตามชื่อประเภทไฟล์ย่อย (Subcategory) และประเภทหลัก
   const groupedFiles: Record<string, any[]> = {};
   files.forEach((file) => {
-    const catName = file.category_name;
-    if (!groupedFiles[catName]) {
-      groupedFiles[catName] = [];
+    let groupKey = "";
+    if (file.subcategory_code) {
+      groupKey = `${file.category_name} - ${file.subcategory_code}`;
+      if (file.subcategory_name) {
+        groupKey += ` (${file.subcategory_name})`;
+      }
+      if (file.subcategory_ip) {
+        groupKey += ` [IP: ${file.subcategory_ip}]`;
+      }
+    } else {
+      groupKey = `${file.category_name} - ทั่วไป`;
     }
-    groupedFiles[catName].push(file);
+
+    if (!groupedFiles[groupKey]) {
+      groupedFiles[groupKey] = [];
+    }
+    groupedFiles[groupKey].push(file);
   });
 
   const createdDateStr = machine?.created_at

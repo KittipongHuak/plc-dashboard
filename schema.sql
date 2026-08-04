@@ -80,6 +80,7 @@ CREATE TABLE IF NOT EXISTS subcategories (
     code VARCHAR(50) NOT NULL,
     name VARCHAR(100) NOT NULL,
     description TEXT,
+    ip_address VARCHAR(50),
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     UNIQUE (machine_id, category_id, code),
     CONSTRAINT fk_machine FOREIGN KEY (machine_id) REFERENCES machines(id) ON DELETE CASCADE ON UPDATE CASCADE,

@@ -39,7 +39,7 @@ export default async function SubcategoriesDetailPage({ params }: SubcategoriesD
 
     // 3. ดึงรายการประเภทย่อยทั้งหมดของหลักนี้ (ระบุตามเครื่องจักรหลัก)
     const subRes = await pool.query(
-      "SELECT id, code, name, description FROM subcategories WHERE machine_id = $1 AND category_id = $2 ORDER BY code;",
+      "SELECT id, code, name, ip_address, description FROM subcategories WHERE machine_id = $1 AND category_id = $2 ORDER BY code;",
       [machineId, categoryId]
     );
     subcategories = subRes.rows;
@@ -132,6 +132,7 @@ export default async function SubcategoriesDetailPage({ params }: SubcategoriesD
                   id: sub.id,
                   code: sub.code,
                   name: sub.name,
+                  ipAddress: sub.ip_address || "",
                   description: sub.description || "",
                 }))}
               />

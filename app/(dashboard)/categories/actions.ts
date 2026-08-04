@@ -117,13 +117,14 @@ export async function createSubcategory(
     code: string;
     name: string;
     description: string;
+    ipAddress?: string;
   }
 ): Promise<CategoryActionResponse> {
   try {
-    const { code, name, description } = data;
+    const { code, name, description, ipAddress } = data;
 
     if (!code.trim() || !name.trim()) {
-      return { success: false, error: "กรุณากรอกรหัสประเภทย่อยและชื่อประเภทย่อย" };
+      return { success: false, error: "กรุณากรอกรหัสประเภทย่อยและรุ่นอุปกรณ์" };
     }
 
     // ตรวจสอบความซ้ำซ้อนของรหัสประเภทย่อย ภายใต้เครื่องจักรและชนิดหลักเดียวกัน
@@ -136,9 +137,9 @@ export async function createSubcategory(
     }
 
     await pool.query(
-      `INSERT INTO subcategories (machine_id, category_id, code, name, description) 
-       VALUES ($1, $2, $3, $4, $5);`,
-      [machineId, categoryId, code.trim(), name.trim(), description.trim() || null]
+      `INSERT INTO subcategories (machine_id, category_id, code, name, description, ip_address) 
+       VALUES ($1, $2, $3, $4, $5, $6);`,
+      [machineId, categoryId, code.trim(), name.trim(), description.trim() || null, ipAddress?.trim() || null]
     );
 
     revalidatePath(`/categories/${machineId}/${categoryId}`);
@@ -163,13 +164,14 @@ export async function updateSubcategory(
     code: string;
     name: string;
     description: string;
+    ipAddress?: string;
   }
 ): Promise<CategoryActionResponse> {
   try {
-    const { code, name, description } = data;
+    const { code, name, description, ipAddress } = data;
 
     if (!code.trim() || !name.trim()) {
-      return { success: false, error: "กรุณากรอกรหัสประเภทย่อยและชื่อประเภทย่อย" };
+      return { success: false, error: "กรุณากรอกรหัสประเภทย่อยและรุ่นอุปกรณ์" };
     }
 
     // หากมีการเปลี่ยนรหัสย่อย ต้องเช็กไม่ให้ซ้ำกับตัวอื่นในเครื่องและหมวดหมู่เดียวกัน
@@ -183,9 +185,9 @@ export async function updateSubcategory(
 
     await pool.query(
       `UPDATE subcategories 
-       SET code = $1, name = $2, description = $3 
-       WHERE id = $4;`,
-      [code.trim(), name.trim(), description.trim() || null, id]
+       SET code = $1, name = $2, description = $3, ip_address = $4 
+       WHERE id = $5;`,
+      [code.trim(), name.trim(), description.trim() || null, ipAddress?.trim() || null, id]
     );
 
     revalidatePath(`/categories/${machineId}/${categoryId}`);

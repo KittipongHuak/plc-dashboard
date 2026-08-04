@@ -93,7 +93,7 @@ export default async function DashboardPage() {
       metrics.lastUploadText = getRelativeTimeString(lastUploadDate);
     }
 
-    // 6. ดึงข้อมูล 5 รายการล่าสุดมาแสดงใน RecentActivity (ร่วมกับดึงประเภทไฟล์ย่อยถ้ามี)
+    // 6. ดึงข้อมูล 5 รายการล่าสุดมาแสดงใน RecentActivity (ร่วมกับดึงประเภทไฟล์ย่อยและหมายเหตุ)
     const recentRes = await pool.query(`
       SELECT 
         f.file_name, 
@@ -102,6 +102,7 @@ export default async function DashboardPage() {
         f.version, 
         c.name AS category_name, 
         s.name AS subcategory_name,
+        f.remark,
         f.upload_by,
         f.upload_date
       FROM plc_files f
@@ -116,8 +117,11 @@ export default async function DashboardPage() {
       fileName: `${row.file_name}${row.file_extension}`,
       machine: row.machine_name,
       version: `v${row.version}`,
-      category: row.category_name,
-      subcategory: row.subcategory_name || "",
+      category: row.subcategory_name 
+        ? `${row.category_name} (${row.subcategory_name})`
+        : row.category_name,
+      uploadDate: new Date(row.upload_date).toLocaleString("th-TH"),
+      remark: row.remark || "",
       uploader: row.upload_by,
     }));
 

@@ -5,11 +5,12 @@ import Input from "../ui/Input";
 import Button from "../ui/Button";
 
 interface SubcategoryFormProps {
-  onSubmit: (data: { code: string; name: string; description: string }) => void;
+  onSubmit: (data: { code: string; name: string; description: string; ipAddress: string }) => void;
   initialData?: {
     code: string;
     name: string;
     description: string;
+    ipAddress?: string;
   };
   disabled?: boolean;
 }
@@ -22,6 +23,7 @@ export default function SubcategoryForm({
   const [code, setCode] = useState(initialData?.code || "");
   const [name, setName] = useState(initialData?.name || "");
   const [description, setDescription] = useState(initialData?.description || "");
+  const [ipAddress, setIpAddress] = useState(initialData?.ipAddress || "");
 
   const isEdit = !!initialData;
 
@@ -33,6 +35,7 @@ export default function SubcategoryForm({
       code: code.trim(),
       name: name.trim(),
       description: description.trim(),
+      ipAddress: ipAddress.trim(),
     });
   };
 
@@ -40,31 +43,40 @@ export default function SubcategoryForm({
     <form onSubmit={handleSubmit} className="space-y-5">
       {/* รหัสประเภทย่อยชนิดไฟล์ */}
       <Input
-        label="รหัสประเภทย่อยชนิดไฟล์"
+        label="รหัสประเภทย่อย"
         required
         value={code}
         onChange={(e) => setCode(e.target.value)}
-        placeholder="เช่น SUB001 (ตัวอักษรและตัวเลขเท่านั้น)"
+        placeholder="เช่น CPU01"
         disabled={disabled}
       />
 
-      {/* ชื่อประเภทย่อยชนิดไฟล์ */}
+      {/* รุ่นอุปกรณ์ */}
       <Input
-        label="ชื่อประเภทย่อยชนิดไฟล์"
+        label="รุ่นอุปกรณ์"
         required
         value={name}
         onChange={(e) => setName(e.target.value)}
-        placeholder="เช่น Main Logic หรือ Safety Logic"
+        placeholder="เช่น QCPU หรือ FX5U"
+        disabled={disabled}
+      />
+
+      {/* IP Address */}
+      <Input
+        label="IP Address"
+        value={ipAddress}
+        onChange={(e) => setIpAddress(e.target.value)}
+        placeholder="เช่น 10.153.16.192"
         disabled={disabled}
       />
 
       {/* รายละเอียดเพิ่มเติม */}
       <Input
         as="textarea"
-        label="รายละเอียดประเภทย่อยชนิดไฟล์"
+        label="รายละเอียด"
         value={description}
         onChange={(e) => setDescription(e.target.value)}
-        placeholder="อธิบายสั้นๆ เกี่ยวกับรายละเอียดประเภทย่อย..."
+        placeholder="อธิบายข้อมูล รายละเอียด หรือหมายเหตุเพิ่มเติม..."
         rows={3}
         disabled={disabled}
       />

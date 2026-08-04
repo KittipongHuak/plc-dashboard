@@ -3,7 +3,8 @@ export interface ActivityRow {
   machine: string;
   version: string;
   category: string;
-  subcategory: string;
+  uploadDate: string;
+  remark: string;
   uploader: string;
 }
 
@@ -15,8 +16,9 @@ const columns = [
   "รายละเอียดไฟล์",
   "เครื่องจักร",
   "เวอร์ชัน",
-  "ประเภทไฟล์หลัก",
-  "ประเภทไฟล์ย่อย",
+  "ประเภทไฟล์",
+  "วันเวลาอัปโหลด",
+  "หมายเหตุ",
   "ผู้อัปโหลด",
 ];
 
@@ -69,11 +71,14 @@ export default function RecentActivity({ rows = [] }: RecentActivityProps) {
                   <td className="px-6 py-4 text-body-md font-code-sm">
                     {row.version}
                   </td>
-                  <td className="px-6 py-4 text-body-md">
+                  <td className="px-6 py-4 text-body-md font-semibold text-primary">
                     {row.category}
                   </td>
-                  <td className="px-6 py-4 text-body-md text-on-surface-variant font-semibold">
-                    {row.subcategory || "-"}
+                  <td className="px-6 py-4 text-body-md text-on-surface-variant font-code-sm">
+                    {row.uploadDate}
+                  </td>
+                  <td className="px-6 py-4 text-body-md text-on-surface-variant max-w-xs truncate" title={row.remark}>
+                    {row.remark || "-"}
                   </td>
                   <td className="px-6 py-4 text-body-md">{row.uploader}</td>
                 </tr>

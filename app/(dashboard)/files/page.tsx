@@ -4,6 +4,7 @@ import Breadcrumb from "@/components/layout/Breadcrumb";
 import FileFilters from "@/components/file/FileFilters";
 import FileTable from "@/components/file/FileTable";
 import { pool } from "@/lib/db";
+import { cookies } from "next/headers";
 
 interface FilesPageProps {
   searchParams: {
@@ -15,10 +16,12 @@ interface FilesPageProps {
 
 export default async function FilesPage({ searchParams }: FilesPageProps) {
   const { search, machineId, categoryId } = searchParams;
+  const isLoggedIn = cookies().get("session_token")?.value === "AdminToken";
 
   let files: any[] = [];
   let machines: any[] = [];
   let categories: any[] = [];
+  let subcategories: any[] = [];
   let dbError: string | null = null;
 
   try {
@@ -28,6 +31,9 @@ export default async function FilesPage({ searchParams }: FilesPageProps) {
 
     const categoriesRes = await pool.query("SELECT id, name FROM categories ORDER BY id;");
     categories = categoriesRes.rows;
+
+    const subcategoriesRes = await pool.query("SELECT id, machine_id, category_id, code, name FROM subcategories ORDER BY name;");
+    subcategories = subcategoriesRes.rows;
 
     // 2. ดึงรายการไฟล์พร้อมการประยุกต์ใช้ตัวกรอง
     const searchPattern = search ? `%${search}%` : null;
@@ -44,11 +50,19 @@ export default async function FilesPage({ searchParams }: FilesPageProps) {
         f.upload_by,
         f.upload_date,
         f.remark,
+        f.subcategory_id,
         m.id AS machine_id,
         m.name AS machine_name,
         c.id AS category_id,
         c.name AS category_name,
-        s.name AS subcategory_name
+        s.name AS subcategory_name,
+        (f.version = (
+          SELECT MAX(f2.version) 
+          FROM plc_files f2 
+          WHERE f2.machine_id = f.machine_id 
+            AND f2.category_id = f.category_id 
+            AND (f2.subcategory_id IS NOT DISTINCT FROM f.subcategory_id)
+        )) AS is_latest
       FROM plc_files f
       JOIN machines m ON f.machine_id = m.id
       JOIN categories c ON f.category_id = c.id
@@ -101,7 +115,13 @@ export default async function FilesPage({ searchParams }: FilesPageProps) {
           <FileFilters machines={machines} categories={categories} />
 
           {/* ตารางการจัดการไฟล์ */}
-          <FileTable rows={files} />
+          <FileTable 
+            rows={files} 
+            isLoggedIn={isLoggedIn} 
+            machines={machines}
+            categories={categories}
+            subcategories={subcategories}
+          />
         </div>
       </main>
     </>

@@ -18,9 +18,11 @@ interface MachineRow {
 
 interface MachineTableProps {
   rows: MachineRow[];
+  isLoggedIn?: boolean;
+  mode?: "view" | "manage";
 }
 
-export default function MachineTable({ rows }: MachineTableProps) {
+export default function MachineTable({ rows, isLoggedIn = false, mode = "view" }: MachineTableProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
@@ -111,29 +113,41 @@ export default function MachineTable({ rows }: MachineTableProps) {
                 <td className="px-6 py-4 text-body-md font-semibold text-center">{row.filesCount}</td>
                 <td className="px-6 py-4 text-body-md text-center">
                   <div className="flex items-center justify-center gap-2">
-                    <Link href={`/machines/${row.id}`}>
-                      <Button variant="outline" size="sm" icon="arrow_forward">
-                        เปิดรายละเอียด
-                      </Button>
-                    </Link>
+                    {mode === "view" ? (
+                      <Link href={`/machines/${row.id}`}>
+                        <Button variant="outline" size="sm" icon="arrow_forward">
+                          เปิดรายละเอียด
+                        </Button>
+                      </Link>
+                    ) : (
+                      <Link href={`/categories/${row.id}`}>
+                        <Button variant="outline" size="sm" icon="subdirectory_arrow_right" className="text-primary hover:bg-surface-container-low">
+                          เลือกประเภทหลัก
+                        </Button>
+                      </Link>
+                    )}
                     
-                    <Button
-                      variant="secondary"
-                      size="sm"
-                      icon="edit"
-                      onClick={() => setEditingMachine(row)}
-                      title="แก้ไขเครื่องจักร"
-                      disabled={isPending}
-                    />
+                    {mode === "manage" && isLoggedIn && (
+                      <>
+                        <Button
+                          variant="secondary"
+                          size="sm"
+                          icon="edit"
+                          onClick={() => setEditingMachine(row)}
+                          title="แก้ไขเครื่องจักร"
+                          disabled={isPending}
+                        />
 
-                    <Button
-                      variant="error"
-                      size="sm"
-                      icon="delete"
-                      onClick={() => setDeletingMachineId(row.id)}
-                      title="ลบเครื่องจักร"
-                      disabled={isPending}
-                    />
+                        <Button
+                          variant="error"
+                          size="sm"
+                          icon="delete"
+                          onClick={() => setDeletingMachineId(row.id)}
+                          title="ลบเครื่องจักร"
+                          disabled={isPending}
+                        />
+                      </>
+                    )}
                   </div>
                 </td>
               </tr>

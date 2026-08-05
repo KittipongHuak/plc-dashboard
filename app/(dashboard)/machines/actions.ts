@@ -2,6 +2,7 @@
 
 import { pool } from "@/lib/db";
 import { revalidatePath } from "next/cache";
+import { checkAdminSession } from "@/app/(auth)/login/actions";
 
 export interface ActionResponse {
   success: boolean;
@@ -14,6 +15,9 @@ export async function createMachine(data: {
   description: string;
 }): Promise<ActionResponse> {
   try {
+    if (!(await checkAdminSession())) {
+      return { success: false, error: "กรุณาเข้าสู่ระบบก่อนทำรายการนี้" };
+    }
     const { id, name, description } = data;
 
     // 1. ตรวจสอบข้อมูลเบื้องต้น
@@ -34,8 +38,9 @@ export async function createMachine(data: {
       [id.trim(), name.trim(), description.trim() || null]
     );
 
-    // 4. รีเฟรชแคชหน้าเครื่องจักรและหน้าแดชบอร์ดหลัก
+    // 4. รีเฟรชแคชหน้าเครื่องจักร หน้าแดชบอร์ด และหน้าหมวดหมู่
     revalidatePath("/machines");
+    revalidatePath("/categories");
     revalidatePath("/dashboard");
 
     return { success: true };
@@ -53,6 +58,9 @@ export async function updateMachine(
   data: { id: string; name: string; description: string }
 ): Promise<ActionResponse> {
   try {
+    if (!(await checkAdminSession())) {
+      return { success: false, error: "กรุณาเข้าสู่ระบบก่อนทำรายการนี้" };
+    }
     const { id, name, description } = data;
 
     if (!id.trim() || !name.trim()) {
@@ -92,6 +100,9 @@ export async function updateMachine(
 
 export async function deleteMachine(id: string): Promise<ActionResponse> {
   try {
+    if (!(await checkAdminSession())) {
+      return { success: false, error: "กรุณาเข้าสู่ระบบก่อนทำรายการนี้" };
+    }
     await pool.query("DELETE FROM machines WHERE id = $1;", [id]);
 
     revalidatePath("/machines");

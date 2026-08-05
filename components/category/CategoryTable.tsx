@@ -131,9 +131,9 @@ export default function CategoryTable({ rows, machineId }: CategoryTableProps) {
                     <div className="flex items-center justify-center gap-3">
                       {machineId && (
                         <Link href={`/categories/${machineId}/${row.id}`}>
-                          <button className="px-3 py-1.5 border border-outline hover:bg-surface-container-low transition-colors rounded-lg text-label-md font-semibold text-primary">
+                          <Button variant="outline" size="sm" icon="subdirectory_arrow_right">
                             เลือกประเภทย่อย
-                          </button>
+                          </Button>
                         </Link>
                       )}
                       

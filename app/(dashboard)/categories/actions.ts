@@ -2,6 +2,7 @@
 
 import { pool } from "@/lib/db";
 import { revalidatePath } from "next/cache";
+import { checkAdminSession } from "@/app/(auth)/login/actions";
 
 export interface CategoryActionResponse {
   success: boolean;
@@ -14,6 +15,9 @@ export async function createCategory(data: {
   description: string;
 }): Promise<CategoryActionResponse> {
   try {
+    if (!(await checkAdminSession())) {
+      return { success: false, error: "กรุณาเข้าสู่ระบบก่อนทำรายการนี้" };
+    }
     const { id, name, description } = data;
 
     if (!id.trim() || !name.trim()) {
@@ -51,6 +55,9 @@ export async function updateCategory(
   data: { id: string; name: string; description: string }
 ): Promise<CategoryActionResponse> {
   try {
+    if (!(await checkAdminSession())) {
+      return { success: false, error: "กรุณาเข้าสู่ระบบก่อนทำรายการนี้" };
+    }
     const { id, name, description } = data;
 
     if (!id.trim() || !name.trim()) {
@@ -89,6 +96,9 @@ export async function updateCategory(
 
 export async function deleteCategory(id: string): Promise<CategoryActionResponse> {
   try {
+    if (!(await checkAdminSession())) {
+      return { success: false, error: "กรุณาเข้าสู่ระบบก่อนทำรายการนี้" };
+    }
     await pool.query("DELETE FROM categories WHERE id = $1;", [id]);
 
     revalidatePath("/categories");
@@ -121,6 +131,9 @@ export async function createSubcategory(
   }
 ): Promise<CategoryActionResponse> {
   try {
+    if (!(await checkAdminSession())) {
+      return { success: false, error: "กรุณาเข้าสู่ระบบก่อนทำรายการนี้" };
+    }
     const { code, name, description, ipAddress } = data;
 
     if (!code.trim() || !name.trim()) {
@@ -168,6 +181,9 @@ export async function updateSubcategory(
   }
 ): Promise<CategoryActionResponse> {
   try {
+    if (!(await checkAdminSession())) {
+      return { success: false, error: "กรุณาเข้าสู่ระบบก่อนทำรายการนี้" };
+    }
     const { code, name, description, ipAddress } = data;
 
     if (!code.trim() || !name.trim()) {
@@ -210,6 +226,9 @@ export async function deleteSubcategory(
   machineId: string
 ): Promise<CategoryActionResponse> {
   try {
+    if (!(await checkAdminSession())) {
+      return { success: false, error: "กรุณาเข้าสู่ระบบก่อนทำรายการนี้" };
+    }
     await pool.query("DELETE FROM subcategories WHERE id = $1;", [id]);
 
     revalidatePath(`/categories/${machineId}/${categoryId}`);

@@ -4,8 +4,10 @@ import Breadcrumb from "@/components/layout/Breadcrumb";
 import MachineTable from "@/components/machine/MachineTable";
 import AddMachineButton from "@/components/machine/AddMachineButton";
 import { pool } from "@/lib/db";
+import { cookies } from "next/headers";
 
 export default async function MachinesPage() {
+  const isLoggedIn = cookies().get("session_token")?.value === "AdminToken";
   let machines: any[] = [];
   let dbError: string | null = null;
 
@@ -44,9 +46,6 @@ export default async function MachinesPage() {
                 แสดงข้อมูลเครื่องจักรที่ลงทะเบียนในระบบ และจำนวนไฟล์การปรับปรุงในประวัติ
               </p>
             </div>
-            <div>
-              <AddMachineButton />
-            </div>
           </div>
 
           {/* Database connection alert in case of failure */}
@@ -63,7 +62,7 @@ export default async function MachinesPage() {
           )}
 
           {/* ตารางเครื่องจักร */}
-          <MachineTable rows={machines} />
+          <MachineTable rows={machines} isLoggedIn={isLoggedIn} />
         </div>
       </main>
     </>

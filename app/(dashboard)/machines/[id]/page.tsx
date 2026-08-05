@@ -5,6 +5,7 @@ import MachineDetail from "@/components/machine/MachineDetail";
 import VersionTable from "@/components/version/VersionTable";
 import { pool } from "@/lib/db";
 import { notFound } from "next/navigation";
+import { cookies } from "next/headers";
 
 // ฟังก์ชันจัดรูปแบบขนาดไฟล์
 const formatBytes = (bytes: number) => {
@@ -23,6 +24,7 @@ interface MachineDetailPageProps {
 
 export default async function MachineDetailPage({ params }: MachineDetailPageProps) {
   const { id } = params;
+  const isLoggedIn = cookies().get("session_token")?.value === "AdminToken";
 
   let machine: any = null;
   let files: any[] = [];
@@ -133,9 +135,14 @@ export default async function MachineDetailPage({ params }: MachineDetailPagePro
                 </div>
               ) : (
                 Object.entries(groupedFiles).map(([categoryName, catFiles]) => {
+                  const maxVersion = catFiles.length > 0 
+                    ? Math.max(...catFiles.map(f => f.version)) 
+                    : 0;
+
                   const versionRows = catFiles.map((file) => ({
                     id: file.id,
                     version: `v${file.version}`,
+                    isLatest: file.version === maxVersion,
                     uploadBy: file.upload_by,
                     uploadDate: new Date(file.upload_date).toLocaleString("th-TH"),
                     fileSize: formatBytes(parseInt(file.file_size, 10)),
@@ -148,6 +155,7 @@ export default async function MachineDetailPage({ params }: MachineDetailPagePro
                       <VersionTable
                         categoryName={categoryName}
                         rows={versionRows}
+                        isLoggedIn={isLoggedIn}
                       />
                     </div>
                   );
